@@ -1,5 +1,6 @@
 package com.example.city_cycle_app
 
+import DatabaseHelper
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
@@ -11,8 +12,11 @@ class CreateAccount : AppCompatActivity() {
 
     private var confirmPW = false
     private var emptyFields = true
+
+    private lateinit var dbHelper: DatabaseHelper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        dbHelper = DatabaseHelper(this)
         setContentView(R.layout.activity_create_acc_page)
 
         val proceedToLogin_button: Button = findViewById(R.id.proceed_to_login_button)
@@ -78,6 +82,9 @@ class CreateAccount : AppCompatActivity() {
     }
 
     private fun proceedToLogin(){
+
+        registerUser()
+
         Toast.makeText(
             applicationContext,
             "Log in with your new credentials",
@@ -86,5 +93,21 @@ class CreateAccount : AppCompatActivity() {
 
         val intent_proceedToLogin_button = Intent(this, LoginPage::class.java)
         startActivity(intent_proceedToLogin_button)
+    }
+
+    private fun registerUser(){
+        val userEmail: EditText = findViewById(R.id.editTextTextEmailAddress)
+        val userPW: EditText = findViewById(R.id.editTextTextPassword)
+
+        val userEmail_value = userEmail.text.toString().trim()
+        val userPW_value = userPW.text.toString().trim()
+
+        if (dbHelper.registerUser(userEmail_value, userPW_value)) {
+            Toast.makeText(applicationContext, "Account Created Successfully", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, LoginPage::class.java))
+            finish()
+        } else {
+            Toast.makeText(applicationContext, "Error Creating Account", Toast.LENGTH_SHORT).show()
+        }
     }
 }
