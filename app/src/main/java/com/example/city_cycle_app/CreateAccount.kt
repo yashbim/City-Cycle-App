@@ -50,12 +50,6 @@ class CreateAccount : AppCompatActivity() {
         val password2 = pw2.text.toString()
         print(password2)
 
-//        if (password1 == password2){
-//            val pwStatus = "approved"
-//        } else {
-//            val pwStatus = "rejected"
-//        }
-
         pwStatus = if (password1 == password2) "approved" else "rejected"
 
     }
