@@ -1,9 +1,12 @@
 package com.example.city_cycle_app
 
+import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
+import androidx.core.content.ContextCompat
 
 class LaunchPage : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
