@@ -28,7 +28,13 @@ class CreateAccount : AppCompatActivity() {
                     "Fill out all fields",
                     Toast.LENGTH_SHORT
                 ).show()
-            } else if (confirmPW == true){
+            } else if(confirmPW == false){
+                Toast.makeText(
+                    applicationContext,
+                    "Passwords do not match",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }else if (confirmPW == true){
                 Toast.makeText(
                     applicationContext,
                     "Log in with your new credentials",
@@ -37,12 +43,6 @@ class CreateAccount : AppCompatActivity() {
 
                 val intent_proceedToLogin_button = Intent(this, LoginPage::class.java)
                 startActivity(intent_proceedToLogin_button)
-            } else if(confirmPW == false){
-                Toast.makeText(
-                    applicationContext,
-                    "Passwords do not match",
-                    Toast.LENGTH_SHORT
-                ).show()
             }
 
         }
