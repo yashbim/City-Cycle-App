@@ -15,38 +15,34 @@ class CreateAccount : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_acc_page)
 
-
         val proceedToLogin_button: Button = findViewById(R.id.proceed_to_login_button)
         proceedToLogin_button.setOnClickListener {
 
             emptyFieldsCheck()
             passwordSimilarityCheck();
-
-            if (emptyFields == true){
-                Toast.makeText(
-                    applicationContext,
-                    "Fill out all fields",
-                    Toast.LENGTH_SHORT
-                ).show()
-            } else if(confirmPW == false){
-                Toast.makeText(
-                    applicationContext,
-                    "Passwords do not match",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }else if (confirmPW == true){
-                Toast.makeText(
-                    applicationContext,
-                    "Log in with your new credentials",
-                    Toast.LENGTH_SHORT
-                ).show()
-
-                val intent_proceedToLogin_button = Intent(this, LoginPage::class.java)
-                startActivity(intent_proceedToLogin_button)
-            }
+            proceedRegistration()
 
         }
+    }
 
+    private fun proceedRegistration(){
+        if (emptyFields == true){
+            Toast.makeText(
+                applicationContext,
+                "Fill out all fields",
+                Toast.LENGTH_SHORT
+            ).show()
+        } else if(confirmPW == false){
+            Toast.makeText(
+                applicationContext,
+                "Passwords do not match",
+                Toast.LENGTH_SHORT
+            ).show()
+        }else if (confirmPW == true){
+
+            proceedToLogin()
+
+        }
     }
 
     private fun passwordSimilarityCheck() {
