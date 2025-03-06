@@ -3,6 +3,8 @@ package com.example.city_cycle_app
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 
 class CreateAccount : AppCompatActivity() {
@@ -13,6 +15,9 @@ class CreateAccount : AppCompatActivity() {
 
         val proceedToLogin_button: Button = findViewById(R.id.proceed_to_login_button)
         proceedToLogin_button.setOnClickListener{
+
+            Toast.makeText(applicationContext,"Log in with your new credentials",Toast.LENGTH_SHORT).show()
+
             val intent_proceedToLogin_button = Intent(this, LoginPage::class.java)
             startActivity(intent_proceedToLogin_button)
         }
