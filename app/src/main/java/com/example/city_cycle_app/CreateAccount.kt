@@ -5,12 +5,11 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 
 class CreateAccount : AppCompatActivity() {
 
-    private var pwStatus = "rejected"
+    private var confirmPW = false
     private var emptyFields = true
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,7 +28,7 @@ class CreateAccount : AppCompatActivity() {
                     "Fill out all fields",
                     Toast.LENGTH_SHORT
                 ).show()
-            } else if (pwStatus == "approved"){
+            } else if (confirmPW == true){
                 Toast.makeText(
                     applicationContext,
                     "Log in with your new credentials",
@@ -38,7 +37,7 @@ class CreateAccount : AppCompatActivity() {
 
                 val intent_proceedToLogin_button = Intent(this, LoginPage::class.java)
                 startActivity(intent_proceedToLogin_button)
-            } else if(pwStatus == "rejected"){
+            } else if(confirmPW == false){
                 Toast.makeText(
                     applicationContext,
                     "Passwords do not match",
@@ -59,7 +58,7 @@ class CreateAccount : AppCompatActivity() {
         val password2 = pw2.text.toString()
         print(password2)
 
-        pwStatus = if (password1 == password2) "approved" else "rejected"
+        confirmPW = if (password1 == password2) true else false
 
     }
 
