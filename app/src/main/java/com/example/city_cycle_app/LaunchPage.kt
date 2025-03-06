@@ -12,8 +12,14 @@ class LaunchPage : AppCompatActivity() {
 
         val loginpage_button: Button = findViewById(R.id.sign_in_button)
         loginpage_button.setOnClickListener{
-            val intent = Intent(this, LoginPage::class.java)
-            startActivity(intent)
+            val intent_loginpage_button = Intent(this, LoginPage::class.java)
+            startActivity(intent_loginpage_button)
+        }
+
+        val createaccount_button : Button = findViewById(R.id.create_acc_button)
+        createaccount_button.setOnClickListener{
+            val intent_createaccount_button = Intent(this, CreateAccount::class.java)
+            startActivity(intent_createaccount_button)
         }
 
     }
