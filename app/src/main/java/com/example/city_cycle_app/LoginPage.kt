@@ -1,5 +1,6 @@
 package com.example.city_cycle_app
 
+import DatabaseHelper
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -10,17 +11,23 @@ import kotlin.math.log
 
 class LoginPage : AppCompatActivity() {
 
-    private var login_success = true //change
+    private var login_success = false //change
+    private var credentials_ok = false
     private var no_empty_fields = false
+
+
+    private lateinit var dbHelper: DatabaseHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        dbHelper = DatabaseHelper(this)
         setContentView(R.layout.activity_login_page)
 
         val login_button: Button = findViewById(R.id.proceed_to_login_button)
         login_button.setOnClickListener{
 
             emptyFields()
+            verifyCredentials()
             loginSuccess()
 
         }
@@ -28,10 +35,28 @@ class LoginPage : AppCompatActivity() {
 
     private fun loginSuccess(){
 
-        if(login_success == true && no_empty_fields == true){
+        if(login_success == true && no_empty_fields == true && credentials_ok == true){
             val intent_login = Intent(this, LandingPage::class.java)
             startActivity(intent_login)
         }
+
+    }
+
+    private fun verifyCredentials(){
+        val email = findViewById<EditText>(R.id.editTextTextEmailAddress)
+        val pw = findViewById<EditText>(R.id.editTextTextPassword)
+
+        val email_value = email.text.toString().trim()
+        val pw_value = pw.text.toString().trim()
+
+        credentials_ok = dbHelper.checkUser(email_value, pw_value)
+
+        if (credentials_ok == false) {
+            Toast.makeText(applicationContext, "Invalid email or password", Toast.LENGTH_SHORT).show()
+        } else if (credentials_ok == true){
+            login_success = true
+        }
+
 
     }
 
