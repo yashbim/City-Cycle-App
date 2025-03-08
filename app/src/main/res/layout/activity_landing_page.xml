@@ -40,6 +40,7 @@
     </LinearLayout>
 
     <!-- Top row buttons with proper constraints -->
+
     <Button
         android:id="@+id/book_bikes_button"
         android:layout_width="0dp"
@@ -47,7 +48,7 @@
         android:layout_marginTop="24dp"
         android:layout_marginEnd="8dp"
         android:backgroundTint="@color/blue1"
-        android:text="Button1"
+        android:text="Book bikes"
         android:textColor="@color/white"
         android:textSize="15sp"
         app:cornerRadius="16dp"
