@@ -3,8 +3,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 
-class DatabaseHelper(context: Context) :
-    SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
+class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
     companion object {
         private const val DATABASE_NAME = "CityCycle"
@@ -38,9 +37,6 @@ class DatabaseHelper(context: Context) :
 
         db.execSQL(createBikeStationsTable)
 
-
-        initializeBikeStations() //only once
-
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
@@ -50,17 +46,27 @@ class DatabaseHelper(context: Context) :
 
     fun initializeBikeStations() {
         val db = writableDatabase
-        val stations = listOf(
-            "Colombo", "Gampaha", "Kandy", "Galle", "Jaffna",
-            "Kurunegala", "Ratnapura", "Anuradhapura", "Badulla", "Trincomalee"
-        )
 
-        for (station in stations) {
-            val values = ContentValues().apply {
-                put(COLUMN_STATION_NAME, station)
-                put(COLUMN_AVAILABLE_BIKES, 5)
+        // Check if data already exists
+        val countQuery = "SELECT COUNT(*) FROM bike_stations"
+        val cursor = db.rawQuery(countQuery, null)
+        cursor.moveToFirst()
+        val count = cursor.getInt(0)
+        cursor.close()
+
+        if (count == 0) { // Only insert if the table is empty
+            val stations = listOf(
+                "Colombo", "Gampaha", "Kandy", "Galle", "Jaffna",
+                "Kurunegala", "Ratnapura", "Anuradhapura", "Badulla", "Trincomalee"
+            )
+
+            for (station in stations) {
+                val values = ContentValues().apply {
+                    put("station_name", station)
+                    put("available_bikes", 5)
+                }
+                db.insert("bike_stations", null, values)
             }
-            db.insert(TABLE_BIKE_STATIONS, null, values)
         }
         db.close()
     }

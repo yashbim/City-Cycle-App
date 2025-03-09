@@ -15,6 +15,8 @@ class BikeStationsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_bike_stations)
 
         dbHelper = DatabaseHelper(this)
+
+        dbHelper.initializeBikeStations()
         val stations = dbHelper.getBikeStations()
 
         val listView: ListView = findViewById(R.id.listViewBikeStations)

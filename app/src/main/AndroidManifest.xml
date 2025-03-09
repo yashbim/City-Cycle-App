@@ -38,10 +38,6 @@
             android:name=".LandingPage"
             android:exported="true"
             android:screenOrientation="portrait" />
-        <activity
-            android:name=".BookBikes"
-            android:exported="true"
-            android:screenOrientation="portrait" />
 <!--        <activity-->
 <!--            android:name=".BikeStationsActivity"-->
 <!--            android:exported="true"-->
