@@ -44,6 +44,21 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         onCreate(db)
     }
 
+    fun getBikeCount(stationName: String): Int {
+        val db = readableDatabase
+        val query = "SELECT $COLUMN_AVAILABLE_BIKES FROM $TABLE_BIKE_STATIONS WHERE $COLUMN_STATION_NAME = ?"
+        val cursor = db.rawQuery(query, arrayOf(stationName))
+
+        var count = 0
+        if (cursor.moveToFirst()) {
+            count = cursor.getInt(0)
+        }
+        cursor.close()
+        db.close()
+        return count
+    }
+
+
     fun initializeBikeStations() {
         val db = writableDatabase
 

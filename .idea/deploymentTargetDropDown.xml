@@ -2,20 +2,20 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
-      <entry key="app">
+      <entry key="Run">
         <State>
           <runningDeviceTargetSelectedWithDropDown>
             <Target>
               <type value="RUNNING_DEVICE_TARGET" />
               <deviceKey>
                 <Key>
-                  <type value="SERIAL_NUMBER" />
-                  <value value="29231FDH200HXB" />
+                  <type value="VIRTUAL_DEVICE_PATH" />
+                  <value value="C:\Users\Bimsara\.android\avd\Pixel_5_API_33.avd" />
                 </Key>
               </deviceKey>
             </Target>
           </runningDeviceTargetSelectedWithDropDown>
-          <timeTargetWasSelectedWithDropDown value="2025-03-09T09:39:19.740427600Z" />
+          <timeTargetWasSelectedWithDropDown value="2025-03-09T15:37:17.473410700Z" />
         </State>
       </entry>
     </value>
