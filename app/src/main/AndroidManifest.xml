@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application
+
+
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -33,6 +35,10 @@
             android:screenOrientation="portrait"/>
         <activity android:name=".BookBikes" android:exported="true"
             android:screenOrientation="portrait"/>
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCGlXY90V1PLc-mGsW7qoYkuL9mPNUVRNU"/>
     </application>
 
 </manifest>
