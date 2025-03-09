@@ -5,34 +5,47 @@
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
+        android:forceDarkAllowed="false"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.CityCycleApp"
-        tools:targetApi="31"
-        android:forceDarkAllowed="false">
+        tools:targetApi="31">
+        <activity
+            android:name=".BikeStationsActivity"
+            android:exported="false" />
         <activity
             android:name=".LaunchPage"
-            android:screenOrientation="portrait"
-
-            android:exported="true">
+            android:exported="true"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".LoginPage"
+            android:exported="true"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".CreateAccount"
+            android:exported="true"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".LandingPage"
+            android:exported="true"
+            android:screenOrientation="portrait" />
+<!--        <activity-->
+<!--            android:name=".BikeStationsActivity"-->
+<!--            android:exported="true"-->
+<!--            android:screenOrientation="portrait" />-->
 
-        <activity android:name=".LoginPage" android:exported="true"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".CreateAccount" android:exported="true"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".LandingPage" android:exported="true"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".BookBikes" android:exported="true"
-            android:screenOrientation="portrait"/>
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="**************" />
     </application>
 
 </manifest>
