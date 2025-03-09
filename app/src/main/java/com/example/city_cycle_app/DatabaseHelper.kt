@@ -13,18 +13,75 @@ class DatabaseHelper(context: Context) :
         private const val COLUMN_ID = "id"
         private const val COLUMN_EMAIL = "email"
         private const val COLUMN_PASSWORD = "password"
+
+        //bike station data
+
+        private const val TABLE_BIKE_STATIONS = "bike_stations"
+        private const val COLUMN_STATION_ID = "station_id"
+        private const val COLUMN_STATION_NAME = "station_name"
+        private const val COLUMN_AVAILABLE_BIKES = "available_bikes"
+
     }
 
     override fun onCreate(db: SQLiteDatabase) {
         val createTable = "CREATE TABLE $TABLE_NAME ($COLUMN_ID INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "$COLUMN_EMAIL TEXT, $COLUMN_PASSWORD TEXT)"
         db.execSQL(createTable)
+
+        val createBikeStationsTable = """
+    CREATE TABLE $TABLE_BIKE_STATIONS (
+        $COLUMN_STATION_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        $COLUMN_STATION_NAME TEXT,
+        $COLUMN_AVAILABLE_BIKES INTEGER
+    )
+""".trimIndent()
+
+        db.execSQL(createBikeStationsTable)
+
+
+        initializeBikeStations() //only once
+
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         db.execSQL("DROP TABLE IF EXISTS $TABLE_NAME")
         onCreate(db)
     }
+
+    fun initializeBikeStations() {
+        val db = writableDatabase
+        val stations = listOf(
+            "Colombo", "Gampaha", "Kandy", "Galle", "Jaffna",
+            "Kurunegala", "Ratnapura", "Anuradhapura", "Badulla", "Trincomalee"
+        )
+
+        for (station in stations) {
+            val values = ContentValues().apply {
+                put(COLUMN_STATION_NAME, station)
+                put(COLUMN_AVAILABLE_BIKES, 5)
+            }
+            db.insert(TABLE_BIKE_STATIONS, null, values)
+        }
+        db.close()
+    }
+
+    fun getBikeStations(): List<Pair<String, Int>> {
+        val db = readableDatabase
+        val query = "SELECT $COLUMN_STATION_NAME, $COLUMN_AVAILABLE_BIKES FROM $TABLE_BIKE_STATIONS"
+        val cursor = db.rawQuery(query, null)
+
+        val stations = mutableListOf<Pair<String, Int>>()
+        while (cursor.moveToNext()) {
+            val name = cursor.getString(0)
+            val bikes = cursor.getInt(1)
+            stations.add(Pair(name, bikes))
+        }
+        cursor.close()
+        db.close()
+        return stations
+    }
+
+
 
     fun registerUser(email: String, password: String): Boolean {
         val db = this.writableDatabase

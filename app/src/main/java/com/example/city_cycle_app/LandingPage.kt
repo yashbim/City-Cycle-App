@@ -13,7 +13,7 @@ class LandingPage : AppCompatActivity(){
 
         val find_bikes_button : LinearLayout = findViewById(R.id.book_bikes_button)
         find_bikes_button.setOnClickListener{
-            val intent_to_book_bikes = Intent(this, BookBikes::class.java)
+            val intent_to_book_bikes = Intent(this, BikeStationsActivity::class.java)
             startActivity(intent_to_book_bikes)
         }
 
