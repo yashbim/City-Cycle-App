@@ -15,7 +15,18 @@
               </deviceKey>
             </Target>
           </runningDeviceTargetSelectedWithDropDown>
-          <timeTargetWasSelectedWithDropDown value="2025-03-09T15:37:17.473410700Z" />
+          <targetSelectedWithDropDown>
+            <Target>
+              <type value="QUICK_BOOT_TARGET" />
+              <deviceKey>
+                <Key>
+                  <type value="VIRTUAL_DEVICE_PATH" />
+                  <value value="C:\Users\Bimsara\.android\avd\Pixel_5_API_33.avd" />
+                </Key>
+              </deviceKey>
+            </Target>
+          </targetSelectedWithDropDown>
+          <timeTargetWasSelectedWithDropDown value="2025-03-10T03:17:01.486951700Z" />
         </State>
       </entry>
     </value>

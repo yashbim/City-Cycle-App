@@ -7,7 +7,6 @@ import android.widget.SimpleAdapter
 import androidx.appcompat.app.AppCompatActivity
 
 class BikeStationsActivity : AppCompatActivity() {
-
     private lateinit var dbHelper: DatabaseHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -15,19 +14,21 @@ class BikeStationsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_bike_stations)
 
         dbHelper = DatabaseHelper(this)
-
         dbHelper.initializeBikeStations()
-        val stations = dbHelper.getBikeStations()
 
+        val stations = dbHelper.getBikeStations()
         val listView: ListView = findViewById(R.id.listViewBikeStations)
-        val data = stations.map { mapOf("station" to it.first, "bikes" to "${it.second} bikes") }
+
+        val data = stations.map {
+            mapOf("station" to it.first, "bikes" to "${it.second} bikes")
+        }
 
         val adapter = SimpleAdapter(
             this,
             data,
-            android.R.layout.simple_list_item_2,
+            R.layout.custom_list_item,  // Use your custom layout here
             arrayOf("station", "bikes"),
-            intArrayOf(android.R.id.text1, android.R.id.text2)
+            intArrayOf(R.id.text1, R.id.text2)
         )
 
         listView.adapter = adapter
