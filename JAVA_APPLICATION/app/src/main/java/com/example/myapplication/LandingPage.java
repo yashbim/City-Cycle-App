@@ -23,10 +23,10 @@ public class LandingPage extends AppCompatActivity {
             startActivity(intent_to_book_bikes);
         });
 
-//        Button mapButton = findViewById(R.id.mapButton);
-//        mapButton.setOnClickListener(v -> {
-//            Intent intent = new Intent(this, MapsActivity.class);
-//            startActivity(intent);
-//        });
+        Button mapButton = findViewById(R.id.mapButton);
+        mapButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, MapsActivity.class);
+            startActivity(intent);
+        });
     }
 }
