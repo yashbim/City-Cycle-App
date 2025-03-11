@@ -27,7 +27,7 @@
         -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="${MAPS_API_KEY}" />
+            android:value="AIzaSyBZrexh6EaKhcxekFDM9HH-hqwuGcR2t8g" />
 
         <activity
             android:name=".MapsActivity"
@@ -56,6 +56,10 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".LandingPage"
+            android:exported="true"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".BookBike"
             android:exported="true"
             android:screenOrientation="portrait" />
     </application>
