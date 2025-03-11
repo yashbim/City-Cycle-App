@@ -20,6 +20,17 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         private const val COLUMN_STATION_NAME = "station_name"
         private const val COLUMN_AVAILABLE_BIKES = "available_bikes"
 
+        //booking
+
+        private const val TABLE_BOOKINGS = "bookings"
+        private const val COLUMN_BOOKING_ID = "booking_id"
+        private const val COLUMN_USER_EMAIL = "user_email"
+//        private const var COLUMN_STATION_ID = "station_id"
+        private const val COLUMN_START_TIME = "start_time"
+        private const val COLUMN_DURATION = "duration"
+        private const val COLUMN_TOTAL_PRICE = "total_price"
+
+
     }
 
     override fun onCreate(db: SQLiteDatabase) {
@@ -37,12 +48,81 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
         db.execSQL(createBikeStationsTable)
 
+        val createBookingsTable = """
+    CREATE TABLE $TABLE_BOOKINGS (
+        $COLUMN_BOOKING_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        $COLUMN_USER_EMAIL TEXT,
+        $COLUMN_STATION_ID INTEGER,
+        $COLUMN_START_TIME TEXT,
+        $COLUMN_DURATION INTEGER,
+        $COLUMN_TOTAL_PRICE REAL,
+        FOREIGN KEY ($COLUMN_USER_EMAIL) REFERENCES users(email),
+        FOREIGN KEY ($COLUMN_STATION_ID) REFERENCES bike_stations(station_id)
+    )
+""".trimIndent()
+
+        db.execSQL(createBookingsTable)
+
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         db.execSQL("DROP TABLE IF EXISTS $TABLE_NAME")
         onCreate(db)
     }
+
+    //fetch station names dynamically
+    fun getStationNames(): List<String> {
+        val db = readableDatabase
+        val query = "SELECT $COLUMN_STATION_NAME FROM $TABLE_BIKE_STATIONS"
+        val cursor = db.rawQuery(query, null)
+
+        val stations = mutableListOf<String>()
+        while (cursor.moveToNext()) {
+            stations.add(cursor.getString(0))
+        }
+        cursor.close()
+        db.close()
+        return stations
+    }
+
+    //handle bookings
+    fun bookBike(userEmail: String, stationName: String, startTime: String, duration: Int, totalPrice: Double): Boolean {
+        val db = writableDatabase
+
+        // Get station ID and available bikes
+        val query = "SELECT $COLUMN_STATION_ID, $COLUMN_AVAILABLE_BIKES FROM $TABLE_BIKE_STATIONS WHERE $COLUMN_STATION_NAME = ?"
+        val cursor = db.rawQuery(query, arrayOf(stationName))
+
+        if (cursor.moveToFirst()) {
+            val stationId = cursor.getInt(0)
+            val availableBikes = cursor.getInt(1)
+
+            if (availableBikes > 0) {
+                // Insert booking
+                val values = ContentValues().apply {
+                    put(COLUMN_USER_EMAIL, userEmail)
+                    put(COLUMN_STATION_ID, stationId)
+                    put(COLUMN_START_TIME, startTime)
+                    put(COLUMN_DURATION, duration)
+                    put(COLUMN_TOTAL_PRICE, totalPrice)
+                }
+                db.insert(TABLE_BOOKINGS, null, values)
+
+                // Update available bikes
+                val updateQuery = "UPDATE $TABLE_BIKE_STATIONS SET $COLUMN_AVAILABLE_BIKES = $COLUMN_AVAILABLE_BIKES - 1 WHERE $COLUMN_STATION_ID = ?"
+                db.execSQL(updateQuery, arrayOf(stationId.toString()))
+
+                cursor.close()
+                db.close()
+                return true
+            }
+        }
+        cursor.close()
+        db.close()
+        return false
+    }
+
+
 
     fun getBikeCount(stationName: String): Int {
         val db = readableDatabase

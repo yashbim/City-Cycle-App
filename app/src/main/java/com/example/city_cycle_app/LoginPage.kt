@@ -36,6 +36,15 @@ class LoginPage : AppCompatActivity() {
     private fun loginSuccess(){
 
         if(login_success == true && no_empty_fields == true && credentials_ok == true){
+            val email_address = findViewById<EditText>(R.id.editTextTextEmailAddress)
+            val email = email_address.text.toString().trim()
+
+
+            val sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE)
+            val editor = sharedPreferences.edit()
+            editor.putString("EMAIL", email)
+            editor.apply()
+
             val intent_login = Intent(this, LandingPage::class.java)
             startActivity(intent_login)
         }
