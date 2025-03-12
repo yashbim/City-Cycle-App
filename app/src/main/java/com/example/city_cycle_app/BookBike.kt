@@ -1,14 +1,23 @@
 package com.example.city_cycle_app
 
 import DatabaseHelper
+import android.app.DatePickerDialog
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import java.text.SimpleDateFormat
+import java.util.*
 
 class BookBike : AppCompatActivity() {
 
     private lateinit var dbHelper: DatabaseHelper
     private lateinit var userEmail: String // Assume this is passed from login session
+
+    // Date picker related variables
+    private lateinit var datePickerText: TextView
+    private lateinit var rentalDateText: TextView
+    private val selectedDate = Calendar.getInstance()
+    private var formattedDate = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,7 +35,7 @@ class BookBike : AppCompatActivity() {
             return
         }
 
-
+        // Initialize all view elements
         val stationSpinner: Spinner = findViewById(R.id.stationSpinner)
         val startTimeSpinner: Spinner = findViewById(R.id.startTimeSpinner)
         val durationSpinner: Spinner = findViewById(R.id.durationSpinner)
@@ -34,6 +43,18 @@ class BookBike : AppCompatActivity() {
         val returnTimeText: TextView = findViewById(R.id.returnTimeText)
         val totalPriceText: TextView = findViewById(R.id.totalPriceText)
         val bookButton: Button = findViewById(R.id.bookButton)
+
+        // Initialize date picker elements
+        datePickerText = findViewById(R.id.datePickerText)
+        rentalDateText = findViewById(R.id.rentalDateText)
+
+        // Set initial date display
+        updateDateDisplay()
+
+        // Set up click listener for the date picker
+        datePickerText.setOnClickListener {
+            showDatePickerDialog()
+        }
 
         // Fetch real stations from DB
         val stations = dbHelper.getStationNames()
@@ -81,14 +102,65 @@ class BookBike : AppCompatActivity() {
             val selectedDuration = (durationSpinner.selectedItem as String).toInt()
             val totalPrice = selectedDuration * ratePerHour
 
-            val success = dbHelper.bookBike(userEmail, selectedStation, selectedStartTime, selectedDuration, totalPrice)
+            // Now include the date in the booking
+            val success = dbHelper.bookBike(
+                userEmail,
+                selectedStation,
+                formattedDate, // Pass the selected date
+                selectedStartTime,
+                selectedDuration,
+                totalPrice
+            )
 
             if (success) {
-                Toast.makeText(this, "Bike booked at $selectedStation for $selectedStartTime, Duration: $selectedDuration hours", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    this,
+                    "Bike booked at $selectedStation for $formattedDate, $selectedStartTime, Duration: $selectedDuration hours",
+                    Toast.LENGTH_LONG
+                ).show()
             } else {
                 Toast.makeText(this, "No bikes available at $selectedStation", Toast.LENGTH_LONG).show()
             }
         }
+    }
+
+    private fun showDatePickerDialog() {
+        val datePickerDialog = DatePickerDialog(
+            this,
+            { _, year, month, dayOfMonth ->
+                // Update the selected date
+                selectedDate.set(Calendar.YEAR, year)
+                selectedDate.set(Calendar.MONTH, month)
+                selectedDate.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+
+                // Update the UI
+                updateDateDisplay()
+            },
+            selectedDate.get(Calendar.YEAR),
+            selectedDate.get(Calendar.MONTH),
+            selectedDate.get(Calendar.DAY_OF_MONTH)
+        )
+
+        // Set min date to today (to prevent booking in the past)
+        datePickerDialog.datePicker.minDate = System.currentTimeMillis()
+
+        // Optionally set a max date (e.g., 30 days in the future)
+        val maxDate = Calendar.getInstance()
+        maxDate.add(Calendar.DAY_OF_YEAR, 30)
+        datePickerDialog.datePicker.maxDate = maxDate.timeInMillis
+
+        datePickerDialog.show()
+    }
+
+    private fun updateDateDisplay() {
+        val displayFormat = SimpleDateFormat("EEE, MMM d, yyyy", Locale.getDefault())
+        val dbFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+        val displayDate = displayFormat.format(selectedDate.time)
+        formattedDate = dbFormat.format(selectedDate.time)
+
+        datePickerText.text = displayDate
+        rentalDateText.text = displayDate
     }
 
     private fun generateTimeSlots(): List<String> {

@@ -98,6 +98,48 @@
               android:paddingHorizontal="12dp" />
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- Date Selection -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Select Date"
+            android:textColor="#1E3A8A"
+            android:textSize="16sp" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp"
+            app:strokeColor="#E5E7EB"
+            app:strokeWidth="1dp">
+
+          <LinearLayout
+              android:layout_width="match_parent"
+              android:layout_height="48dp"
+              android:gravity="center_vertical"
+              android:orientation="horizontal"
+              android:paddingHorizontal="12dp">
+
+            <TextView
+                android:id="@+id/datePickerText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Select a date"
+                android:textColor="#1E293B"
+                android:textSize="16sp" />
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@android:drawable/ic_menu_my_calendar"
+                app:tint="#1E3A8A" />
+          </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
         <!-- Time and Duration Selection Section -->
         <LinearLayout
             android:layout_width="match_parent"
@@ -199,6 +241,28 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+              <TextView
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:layout_weight="1"
+                  android:text="Rental Date:"
+                  android:textColor="#1E3A8A" />
+
+              <TextView
+                  android:id="@+id/rentalDateText"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="--/--/----"
+                  android:textColor="#1E3A8A"
+                  android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:orientation="horizontal">
 
               <TextView

@@ -86,7 +86,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
     }
 
     //handle bookings
-    fun bookBike(userEmail: String, stationName: String, startTime: String, duration: Int, totalPrice: Double): Boolean {
+    fun bookBike(userEmail: String, stationName: String, date: String, startTime: String, duration: Int, totalPrice: Double): Boolean {
         val db = writableDatabase
 
         // Get station ID and available bikes
@@ -98,11 +98,14 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             val availableBikes = cursor.getInt(1)
 
             if (availableBikes > 0) {
+                // Combine date and time for the start_time field
+                val combinedDateTime = "$date $startTime"
+
                 // Insert booking
                 val values = ContentValues().apply {
                     put(COLUMN_USER_EMAIL, userEmail)
                     put(COLUMN_STATION_ID, stationId)
-                    put(COLUMN_START_TIME, startTime)
+                    put(COLUMN_START_TIME, combinedDateTime)
                     put(COLUMN_DURATION, duration)
                     put(COLUMN_TOTAL_PRICE, totalPrice)
                 }
