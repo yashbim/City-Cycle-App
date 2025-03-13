@@ -7,30 +7,26 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
     companion object {
         private const val DATABASE_NAME = "CityCycle"
-        private const val DATABASE_VERSION = 1
+        private const val DATABASE_VERSION = 2 // Increased version number for schema update
         private const val TABLE_NAME = "users"
         private const val COLUMN_ID = "id"
         private const val COLUMN_EMAIL = "email"
         private const val COLUMN_PASSWORD = "password"
 
         //bike station data
-
         private const val TABLE_BIKE_STATIONS = "bike_stations"
         private const val COLUMN_STATION_ID = "station_id"
         private const val COLUMN_STATION_NAME = "station_name"
         private const val COLUMN_AVAILABLE_BIKES = "available_bikes"
 
         //booking
-
         private const val TABLE_BOOKINGS = "bookings"
         private const val COLUMN_BOOKING_ID = "booking_id"
         private const val COLUMN_USER_EMAIL = "user_email"
-//        private const var COLUMN_STATION_ID = "station_id"
         private const val COLUMN_START_TIME = "start_time"
         private const val COLUMN_DURATION = "duration"
         private const val COLUMN_TOTAL_PRICE = "total_price"
-
-
+        private const val COLUMN_STATION_NAME_IN_BOOKING = "station_name" // New column
     }
 
     override fun onCreate(db: SQLiteDatabase) {
@@ -53,6 +49,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         $COLUMN_BOOKING_ID INTEGER PRIMARY KEY AUTOINCREMENT,
         $COLUMN_USER_EMAIL TEXT,
         $COLUMN_STATION_ID INTEGER,
+        $COLUMN_STATION_NAME_IN_BOOKING TEXT,
         $COLUMN_START_TIME TEXT,
         $COLUMN_DURATION INTEGER,
         $COLUMN_TOTAL_PRICE REAL,
@@ -62,12 +59,23 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 """.trimIndent()
 
         db.execSQL(createBookingsTable)
-
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        db.execSQL("DROP TABLE IF EXISTS $TABLE_NAME")
-        onCreate(db)
+        if (oldVersion < 2) {
+            // Add station_name column to bookings table for existing installations
+            db.execSQL("ALTER TABLE $TABLE_BOOKINGS ADD COLUMN $COLUMN_STATION_NAME_IN_BOOKING TEXT")
+
+            // Update existing records to include station names
+            db.execSQL("""
+                UPDATE $TABLE_BOOKINGS 
+                SET $COLUMN_STATION_NAME_IN_BOOKING = (
+                    SELECT $COLUMN_STATION_NAME 
+                    FROM $TABLE_BIKE_STATIONS 
+                    WHERE $TABLE_BIKE_STATIONS.$COLUMN_STATION_ID = $TABLE_BOOKINGS.$COLUMN_STATION_ID
+                )
+            """)
+        }
     }
 
     //fetch station names dynamically
@@ -120,6 +128,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 val values = ContentValues().apply {
                     put(COLUMN_USER_EMAIL, userEmail)
                     put(COLUMN_STATION_ID, stationId)
+                    put(COLUMN_STATION_NAME_IN_BOOKING, stationName) // Store station name
                     put(COLUMN_START_TIME, combinedDateTime)
                     put(COLUMN_DURATION, duration)
                     put(COLUMN_TOTAL_PRICE, totalPrice)
@@ -140,8 +149,6 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         return false
     }
 
-
-
     fun getBikeCount(stationName: String): Int {
         val db = readableDatabase
         val query = "SELECT $COLUMN_AVAILABLE_BIKES FROM $TABLE_BIKE_STATIONS WHERE $COLUMN_STATION_NAME = ?"
@@ -155,7 +162,6 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db.close()
         return count
     }
-
 
     fun initializeBikeStations() {
         val db = writableDatabase
@@ -200,7 +206,35 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         return stations
     }
 
+    // Add a new method to get bookings with station names
+    fun getBookings(userEmail: String): List<Map<String, Any>> {
+        val db = readableDatabase
+        val query = """
+            SELECT b.$COLUMN_BOOKING_ID, b.$COLUMN_USER_EMAIL, 
+                   b.$COLUMN_STATION_ID, b.$COLUMN_STATION_NAME_IN_BOOKING,
+                   b.$COLUMN_START_TIME, b.$COLUMN_DURATION, b.$COLUMN_TOTAL_PRICE
+            FROM $TABLE_BOOKINGS b
+            WHERE b.$COLUMN_USER_EMAIL = ?
+            ORDER BY b.$COLUMN_START_TIME DESC
+        """
+        val cursor = db.rawQuery(query, arrayOf(userEmail))
 
+        val bookings = mutableListOf<Map<String, Any>>()
+        while (cursor.moveToNext()) {
+            val booking = mutableMapOf<String, Any>()
+            booking["id"] = cursor.getInt(0)
+            booking["email"] = cursor.getString(1)
+            booking["stationId"] = cursor.getInt(2)
+            booking["stationName"] = cursor.getString(3)
+            booking["startTime"] = cursor.getString(4)
+            booking["duration"] = cursor.getInt(5)
+            booking["totalPrice"] = cursor.getDouble(6)
+            bookings.add(booking)
+        }
+        cursor.close()
+        db.close()
+        return bookings
+    }
 
     fun registerUser(email: String, password: String): Boolean {
         val db = this.writableDatabase
@@ -261,16 +295,15 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             }
 
             // Query for active bookings
-// Update your query in updateBikeStationsCount() function
             val query = """
-    SELECT $COLUMN_STATION_ID, COUNT(*) AS booked_bikes
-    FROM $TABLE_BOOKINGS
-    WHERE 
-        datetime($COLUMN_START_TIME) <= datetime(?)
-        AND 
-        datetime($COLUMN_START_TIME, '+' || $COLUMN_DURATION || ' hours') > datetime(?)
-    GROUP BY $COLUMN_STATION_ID
-"""
+                SELECT $COLUMN_STATION_ID, COUNT(*) AS booked_bikes
+                FROM $TABLE_BOOKINGS
+                WHERE 
+                    datetime($COLUMN_START_TIME) <= datetime(?)
+                    AND 
+                    datetime($COLUMN_START_TIME, '+' || $COLUMN_DURATION || ' hours') > datetime(?)
+                GROUP BY $COLUMN_STATION_ID
+            """
 
             val cursor = db.rawQuery(query, arrayOf(currentDateTimeString, currentDateTimeString))
 
@@ -284,14 +317,14 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 android.util.Log.d("BikeUpdate", "Station ID: $stationId has $bookedBikes active bookings")
 
                 val updateStationQuery = """
-                UPDATE $TABLE_BIKE_STATIONS 
-                SET $COLUMN_AVAILABLE_BIKES = 
-                    CASE
-                        WHEN (5 - ?) < 0 THEN 0
-                        ELSE 5 - ?
-                    END
-                WHERE $COLUMN_STATION_ID = ?
-            """
+                    UPDATE $TABLE_BIKE_STATIONS 
+                    SET $COLUMN_AVAILABLE_BIKES = 
+                        CASE
+                            WHEN (5 - ?) < 0 THEN 0
+                            ELSE 5 - ?
+                        END
+                    WHERE $COLUMN_STATION_ID = ?
+                """
 
                 db.execSQL(updateStationQuery, arrayOf(bookedBikes.toString(), bookedBikes.toString(), stationId.toString()))
             }
@@ -323,5 +356,4 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
         return success
     }
-
 }
