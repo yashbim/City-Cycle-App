@@ -98,8 +98,23 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             val availableBikes = cursor.getInt(1)
 
             if (availableBikes > 0) {
-                // Combine date and time for the start_time field
-                val combinedDateTime = "$date $startTime"
+                // Convert 12-hour format to 24-hour format
+                val parts = startTime.split(" ")
+                val timePart = parts[0].split(":")
+                var hour = timePart[0].toInt()
+                val minute = timePart[1]
+                val period = parts[1]
+
+                // Convert to 24-hour format
+                if (period == "PM" && hour != 12) {
+                    hour += 12
+                } else if (period == "AM" && hour == 12) {
+                    hour = 0
+                }
+
+                // Format as 24-hour time
+                val formattedTime = String.format("%02d:%s", hour, minute)
+                val combinedDateTime = "$date $formattedTime"
 
                 // Insert booking
                 val values = ContentValues().apply {
@@ -216,35 +231,52 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         try {
             db.beginTransaction()
 
-            // Step 1: Reset all stations to their initial bike count (5)
+            // Reset all stations to their initial bike count (5)
             val resetQuery = "UPDATE $TABLE_BIKE_STATIONS SET $COLUMN_AVAILABLE_BIKES = 5"
             db.execSQL(resetQuery)
 
-            // Step 2: Get the current time in a format matching our stored dates
-            val currentDateTime = System.currentTimeMillis()
-            val simpleDateFormat = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.getDefault())
-            val currentDateTimeString = simpleDateFormat.format(java.util.Date(currentDateTime))
+            // Get current date and time in the format likely used in your database
+            // Using SimpleDateFormat for compatibility with older Android versions
+            val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.getDefault())
+            val currentDateTimeString = dateFormat.format(java.util.Date())
 
             android.util.Log.d("BikeUpdate", "Current time: $currentDateTimeString")
 
-            // Step 3: Query for active bookings - where the start_time has passed but end time hasn't
+            // Sample query to test if any records exist in bookings table
+            val testCursor = db.rawQuery("SELECT COUNT(*) FROM $TABLE_BOOKINGS", null)
+            testCursor.moveToFirst()
+            val bookingCount = testCursor.getInt(0)
+            android.util.Log.d("BikeUpdate", "Total bookings in database: $bookingCount")
+            testCursor.close()
+
+            // Get a sample booking to verify date format
+            if (bookingCount > 0) {
+                val sampleCursor = db.rawQuery("SELECT $COLUMN_START_TIME, $COLUMN_DURATION FROM $TABLE_BOOKINGS LIMIT 1", null)
+                if (sampleCursor.moveToFirst()) {
+                    val sampleTime = sampleCursor.getString(0)
+                    val sampleDuration = sampleCursor.getInt(1)
+                    android.util.Log.d("BikeUpdate", "Sample booking: Start=$sampleTime, Duration=$sampleDuration minutes")
+                }
+                sampleCursor.close()
+            }
+
+            // Query for active bookings
+// Update your query in updateBikeStationsCount() function
             val query = """
-            SELECT $COLUMN_STATION_ID, COUNT(*) AS booked_bikes
-            FROM $TABLE_BOOKINGS
-            WHERE 
-                /* Booking has started */
-                datetime($COLUMN_START_TIME) <= datetime(?) 
-                AND 
-                /* Booking hasn't ended yet */
-                datetime($COLUMN_START_TIME, '+' || $COLUMN_DURATION || ' minutes') > datetime(?)
-            GROUP BY $COLUMN_STATION_ID
-        """
+    SELECT $COLUMN_STATION_ID, COUNT(*) AS booked_bikes
+    FROM $TABLE_BOOKINGS
+    WHERE 
+        datetime($COLUMN_START_TIME) <= datetime(?)
+        AND 
+        datetime($COLUMN_START_TIME, '+' || $COLUMN_DURATION || ' hours') > datetime(?)
+    GROUP BY $COLUMN_STATION_ID
+"""
 
             val cursor = db.rawQuery(query, arrayOf(currentDateTimeString, currentDateTimeString))
 
             android.util.Log.d("BikeUpdate", "Found ${cursor.count} stations with active bookings")
 
-            // Step 4: For each station with active bookings, reduce the available bikes
+            // Update bike counts for stations with active bookings
             while (cursor.moveToNext()) {
                 val stationId = cursor.getInt(0)
                 val bookedBikes = cursor.getInt(1)
@@ -266,7 +298,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
             cursor.close()
 
-            // Verify the update worked by querying the bike stations table
+            // Verify the update
             val verificationCursor = db.rawQuery("SELECT $COLUMN_STATION_ID, $COLUMN_STATION_NAME, $COLUMN_AVAILABLE_BIKES FROM $TABLE_BIKE_STATIONS", null)
             android.util.Log.d("BikeUpdate", "Verification - Station counts after update:")
             while (verificationCursor.moveToNext()) {
