@@ -114,6 +114,7 @@
             app:layout_constraintTop_toTopOf="@+id/rentBikeCard">
 
             <LinearLayout
+                android:id="@+id/rentals_button"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"

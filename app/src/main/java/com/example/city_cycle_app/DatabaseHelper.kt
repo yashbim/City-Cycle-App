@@ -216,30 +216,40 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         try {
             db.beginTransaction()
 
-            // Step 1: Get all stations and reset their counts to initial value (5)
+            // Step 1: Reset all stations to their initial bike count (5)
             val resetQuery = "UPDATE $TABLE_BIKE_STATIONS SET $COLUMN_AVAILABLE_BIKES = 5"
             db.execSQL(resetQuery)
 
-            // Step 2: Get all active bookings regardless of time (for testing)
-            // This simpler query will help us confirm if the basic functionality works
+            // Step 2: Get the current time in a format matching our stored dates
+            val currentDateTime = System.currentTimeMillis()
+            val simpleDateFormat = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.getDefault())
+            val currentDateTimeString = simpleDateFormat.format(java.util.Date(currentDateTime))
+
+            android.util.Log.d("BikeUpdate", "Current time: $currentDateTimeString")
+
+            // Step 3: Query for active bookings - where the start_time has passed but end time hasn't
             val query = """
             SELECT $COLUMN_STATION_ID, COUNT(*) AS booked_bikes
             FROM $TABLE_BOOKINGS
+            WHERE 
+                /* Booking has started */
+                datetime($COLUMN_START_TIME) <= datetime(?) 
+                AND 
+                /* Booking hasn't ended yet */
+                datetime($COLUMN_START_TIME, '+' || $COLUMN_DURATION || ' minutes') > datetime(?)
             GROUP BY $COLUMN_STATION_ID
         """
 
-            val cursor = db.rawQuery(query, null)
+            val cursor = db.rawQuery(query, arrayOf(currentDateTimeString, currentDateTimeString))
 
-            // Log how many active bookings were found (you can use Android Log instead of println in production)
-            val bookingCount = cursor.count
-            android.util.Log.d("BikeUpdate", "Found $bookingCount stations with bookings")
+            android.util.Log.d("BikeUpdate", "Found ${cursor.count} stations with active bookings")
 
-            // Step 3: For each station with bookings, reduce the available bikes
+            // Step 4: For each station with active bookings, reduce the available bikes
             while (cursor.moveToNext()) {
                 val stationId = cursor.getInt(0)
                 val bookedBikes = cursor.getInt(1)
 
-                android.util.Log.d("BikeUpdate", "Station ID: $stationId has $bookedBikes booked bikes")
+                android.util.Log.d("BikeUpdate", "Station ID: $stationId has $bookedBikes active bookings")
 
                 val updateStationQuery = """
                 UPDATE $TABLE_BIKE_STATIONS 
@@ -255,21 +265,21 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             }
 
             cursor.close()
-            db.setTransactionSuccessful()
-            success = true
 
             // Verify the update worked by querying the bike stations table
             val verificationCursor = db.rawQuery("SELECT $COLUMN_STATION_ID, $COLUMN_STATION_NAME, $COLUMN_AVAILABLE_BIKES FROM $TABLE_BIKE_STATIONS", null)
+            android.util.Log.d("BikeUpdate", "Verification - Station counts after update:")
             while (verificationCursor.moveToNext()) {
                 val id = verificationCursor.getInt(0)
                 val name = verificationCursor.getString(1)
                 val bikes = verificationCursor.getInt(2)
-                android.util.Log.d("BikeUpdate", "After update: Station ID: $id, Name: $name, Available bikes: $bikes")
+                android.util.Log.d("BikeUpdate", "Station ID: $id, Name: $name, Available bikes: $bikes")
             }
             verificationCursor.close()
 
+            db.setTransactionSuccessful()
+            success = true
         } catch (e: Exception) {
-            // Log the error
             android.util.Log.e("BikeUpdate", "Error updating bike counts", e)
             e.printStackTrace()
         } finally {
@@ -281,6 +291,5 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
         return success
     }
-
 
 }
