@@ -208,4 +208,79 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db.close()
         return exists
     }
+
+    fun updateBikeStationsCount(): Boolean {
+        val db = writableDatabase
+        var success = false
+
+        try {
+            db.beginTransaction()
+
+            // Step 1: Get all stations and reset their counts to initial value (5)
+            val resetQuery = "UPDATE $TABLE_BIKE_STATIONS SET $COLUMN_AVAILABLE_BIKES = 5"
+            db.execSQL(resetQuery)
+
+            // Step 2: Get all active bookings regardless of time (for testing)
+            // This simpler query will help us confirm if the basic functionality works
+            val query = """
+            SELECT $COLUMN_STATION_ID, COUNT(*) AS booked_bikes
+            FROM $TABLE_BOOKINGS
+            GROUP BY $COLUMN_STATION_ID
+        """
+
+            val cursor = db.rawQuery(query, null)
+
+            // Log how many active bookings were found (you can use Android Log instead of println in production)
+            val bookingCount = cursor.count
+            android.util.Log.d("BikeUpdate", "Found $bookingCount stations with bookings")
+
+            // Step 3: For each station with bookings, reduce the available bikes
+            while (cursor.moveToNext()) {
+                val stationId = cursor.getInt(0)
+                val bookedBikes = cursor.getInt(1)
+
+                android.util.Log.d("BikeUpdate", "Station ID: $stationId has $bookedBikes booked bikes")
+
+                val updateStationQuery = """
+                UPDATE $TABLE_BIKE_STATIONS 
+                SET $COLUMN_AVAILABLE_BIKES = 
+                    CASE
+                        WHEN (5 - ?) < 0 THEN 0
+                        ELSE 5 - ?
+                    END
+                WHERE $COLUMN_STATION_ID = ?
+            """
+
+                db.execSQL(updateStationQuery, arrayOf(bookedBikes.toString(), bookedBikes.toString(), stationId.toString()))
+            }
+
+            cursor.close()
+            db.setTransactionSuccessful()
+            success = true
+
+            // Verify the update worked by querying the bike stations table
+            val verificationCursor = db.rawQuery("SELECT $COLUMN_STATION_ID, $COLUMN_STATION_NAME, $COLUMN_AVAILABLE_BIKES FROM $TABLE_BIKE_STATIONS", null)
+            while (verificationCursor.moveToNext()) {
+                val id = verificationCursor.getInt(0)
+                val name = verificationCursor.getString(1)
+                val bikes = verificationCursor.getInt(2)
+                android.util.Log.d("BikeUpdate", "After update: Station ID: $id, Name: $name, Available bikes: $bikes")
+            }
+            verificationCursor.close()
+
+        } catch (e: Exception) {
+            // Log the error
+            android.util.Log.e("BikeUpdate", "Error updating bike counts", e)
+            e.printStackTrace()
+        } finally {
+            if (db.inTransaction()) {
+                db.endTransaction()
+            }
+            db.close()
+        }
+
+        return success
+    }
+
+
 }
