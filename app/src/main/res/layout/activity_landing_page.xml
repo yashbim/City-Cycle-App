@@ -217,6 +217,7 @@
             app:layout_constraintTop_toBottomOf="@+id/otherOptionsLabel">
 
             <LinearLayout
+                android:id="@+id/promotions_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -281,7 +282,7 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginStart="16dp"
                     android:layout_weight="1"
-                    android:text="Membership &amp; Passes"
+                    android:text="My Account"
                     android:textColor="#333333"
                     android:textSize="16sp" />
 

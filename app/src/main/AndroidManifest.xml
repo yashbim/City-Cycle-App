@@ -14,6 +14,9 @@
         android:theme="@style/Theme.CityCycleApp"
         tools:targetApi="31">
         <activity
+            android:name=".PromotionsActivity"
+            android:exported="false" />
+        <activity
             android:name=".BookingHistory"
             android:exported="false" />
         <!--

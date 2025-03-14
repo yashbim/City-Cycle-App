@@ -53,5 +53,12 @@ class LandingPage : AppCompatActivity(){
             val intent_to_book_bikes = Intent(this, BookingHistory::class.java)
             startActivity(intent_to_book_bikes)
         }
+
+        val promotions_button : LinearLayout = findViewById(R.id.promotions_button)
+        promotions_button.setOnClickListener{
+
+            val intent_to_book_bikes = Intent(this, PromotionsActivity::class.java)
+            startActivity(intent_to_book_bikes)
+        }
     }
 }
