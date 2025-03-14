@@ -23,8 +23,8 @@ public class AccountActivity extends AppCompatActivity {
         TextView emailTextView = findViewById(R.id.emailText);
         emailTextView.setText(savedEmail);
 
-        Button loginButton = findViewById(R.id.resetPasswordBtn);
-        loginButton.setOnClickListener(v -> {
+        Button resetpw_button = findViewById(R.id.resetPasswordBtn);
+        resetpw_button.setOnClickListener(v -> {
             Intent intent = new Intent(this, ResetPassword.class);
             startActivity(intent);
         });
