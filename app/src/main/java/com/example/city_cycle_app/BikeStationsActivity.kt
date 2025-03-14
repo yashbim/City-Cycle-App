@@ -31,7 +31,7 @@ class BikeStationsActivity : AppCompatActivity() {
         val listView: ListView = findViewById(R.id.listViewBikeStations)
 
         val data = stations.map {
-            mapOf("station" to it.first, "bikes" to "${it.second} bikes")
+            mapOf("station" to it.first, "bikes" to "${it.second} bikes available")
         }
 
         val adapter = SimpleAdapter(
