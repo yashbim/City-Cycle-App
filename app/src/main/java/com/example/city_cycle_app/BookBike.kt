@@ -26,8 +26,8 @@ class BookBike : AppCompatActivity() {
         dbHelper = DatabaseHelper(this)
 
         // Retrieve user email from SharedPreferences
-        val sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE)
-        userEmail = sharedPreferences.getString("EMAIL", "") ?: ""
+        val sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE)
+        userEmail = sharedPreferences.getString("user_email", "") ?: ""
 
         if (userEmail.isEmpty()) {
             Toast.makeText(this, "Error: User not logged in!", Toast.LENGTH_LONG).show()
@@ -56,17 +56,23 @@ class BookBike : AppCompatActivity() {
             showDatePickerDialog()
         }
 
-        // Fetch real stations from DB
+        // Fetch real stations from DB and apply custom layout
         val stations = dbHelper.getStationNames()
-        stationSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, stations)
+        val stationAdapter = ArrayAdapter(this, R.layout.spinner_item, stations)
+        stationAdapter.setDropDownViewResource(R.layout.spinner_item)
+        stationSpinner.adapter = stationAdapter
 
-        // Generate a full 24-hour time range
+        // Generate a full 24-hour time range and apply custom layout
         val startTimes = generateTimeSlots()
-        startTimeSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, startTimes)
+        val startTimeAdapter = ArrayAdapter(this, R.layout.spinner_item, startTimes)
+        startTimeAdapter.setDropDownViewResource(R.layout.spinner_item)
+        startTimeSpinner.adapter = startTimeAdapter
 
-        // Duration options (in hours)
+        // Duration options (in hours) and apply custom layout
         val durations = arrayOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12")
-        durationSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, durations)
+        val durationAdapter = ArrayAdapter(this, R.layout.spinner_item, durations)
+        durationAdapter.setDropDownViewResource(R.layout.spinner_item)
+        durationSpinner.adapter = durationAdapter
 
         val ratePerHour = 5.00
 
@@ -121,7 +127,6 @@ class BookBike : AppCompatActivity() {
             } else {
                 Toast.makeText(this, "No bikes available at $selectedStation", Toast.LENGTH_LONG).show()
             }
-
         }
     }
 

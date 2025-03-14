@@ -32,7 +32,7 @@ public class LandingPage extends AppCompatActivity {
                 // Provide feedback
                 if (updated) {
                     Log.d("BikeUpdate", "Bike counts updated successfully");
-                    Toast.makeText(LandingPage.this, "Bike availability updated", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(LandingPage.this, "Bike availability updated", Toast.LENGTH_SHORT).show();
                 } else {
                     Log.e("BikeUpdate", "Failed to update bike counts");
                     Toast.makeText(LandingPage.this, "Could not update bike availability", Toast.LENGTH_SHORT).show();
