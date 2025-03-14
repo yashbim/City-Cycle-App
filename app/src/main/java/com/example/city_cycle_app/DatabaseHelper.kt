@@ -206,35 +206,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         return stations
     }
 
-    // Add a new method to get bookings with station names
-    fun getBookings(userEmail: String): List<Map<String, Any>> {
-        val db = readableDatabase
-        val query = """
-            SELECT b.$COLUMN_BOOKING_ID, b.$COLUMN_USER_EMAIL, 
-                   b.$COLUMN_STATION_ID, b.$COLUMN_STATION_NAME_IN_BOOKING,
-                   b.$COLUMN_START_TIME, b.$COLUMN_DURATION, b.$COLUMN_TOTAL_PRICE
-            FROM $TABLE_BOOKINGS b
-            WHERE b.$COLUMN_USER_EMAIL = ?
-            ORDER BY b.$COLUMN_START_TIME DESC
-        """
-        val cursor = db.rawQuery(query, arrayOf(userEmail))
 
-        val bookings = mutableListOf<Map<String, Any>>()
-        while (cursor.moveToNext()) {
-            val booking = mutableMapOf<String, Any>()
-            booking["id"] = cursor.getInt(0)
-            booking["email"] = cursor.getString(1)
-            booking["stationId"] = cursor.getInt(2)
-            booking["stationName"] = cursor.getString(3)
-            booking["startTime"] = cursor.getString(4)
-            booking["duration"] = cursor.getInt(5)
-            booking["totalPrice"] = cursor.getDouble(6)
-            bookings.add(booking)
-        }
-        cursor.close()
-        db.close()
-        return bookings
-    }
 
     fun registerUser(email: String, password: String): Boolean {
         val db = this.writableDatabase

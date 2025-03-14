@@ -46,5 +46,12 @@ class LandingPage : AppCompatActivity(){
             val intent = Intent(this, MapsActivity::class.java)
             startActivity(intent)
         }
+
+        val my_rentals : LinearLayout = findViewById(R.id.rentals_button)
+        my_rentals.setOnClickListener{
+
+            val intent_to_book_bikes = Intent(this, BookingHistory::class.java)
+            startActivity(intent_to_book_bikes)
+        }
     }
 }
