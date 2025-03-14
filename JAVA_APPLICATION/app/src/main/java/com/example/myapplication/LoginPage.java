@@ -24,25 +24,20 @@ public class LoginPage extends AppCompatActivity {
         Button login_button = findViewById(R.id.proceed_to_login_button);
         login_button.setOnClickListener(v -> {
 
-//            emptyFields();
-//            verifyCredentials();
-//            loginSuccess();
-
-            Intent intent_login = new Intent(this, LandingPage.class);
-            startActivity(intent_login);
+            emptyFields();
+            verifyCredentials();
+            loginSuccess();
         });
     }
 
     private void loginSuccess() {
         if (login_success == true && no_empty_fields == true && credentials_ok == true) {
             EditText email_address = findViewById(R.id.editTextTextEmailAddress);
-//            String email = email_address.getText().toString().trim();
+            String email = email_address.getText().toString().trim();
 
-            String email = "testaddress@email.com";
-
-            SharedPreferences sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+            SharedPreferences sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString("EMAIL", email);
+            editor.putString("user_email", email);
             editor.apply();
 
             Intent intent_login = new Intent(this, LandingPage.class);
