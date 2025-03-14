@@ -369,6 +369,7 @@
             android:backgroundTint="#2563EB"
             android:text="Book Now"
             android:textSize="16sp"
+            android:textColor="@color/white"
             app:cornerRadius="12dp" />
       </LinearLayout>
     </androidx.cardview.widget.CardView>
