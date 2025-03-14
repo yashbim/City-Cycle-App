@@ -2,6 +2,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.util.Log
 
 class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
@@ -77,6 +78,34 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             """)
         }
     }
+
+    //retrieve bookings for a specific user
+
+    fun getBookingHistory(userEmail: String): List<Map<String, String>> {
+        val bookings = mutableListOf<Map<String, String>>()
+        val db = readableDatabase
+        val query = "SELECT $COLUMN_STATION_NAME_IN_BOOKING, $COLUMN_START_TIME, $COLUMN_DURATION, $COLUMN_TOTAL_PRICE FROM $TABLE_BOOKINGS WHERE $COLUMN_USER_EMAIL = ?"
+
+        val cursor = db.rawQuery(query, arrayOf(userEmail))
+
+        while (cursor.moveToNext()) {
+            val booking = mapOf(
+                "station" to cursor.getString(0),
+                "startTime" to cursor.getString(1),
+                "duration" to cursor.getInt(2).toString(),
+                "price" to cursor.getDouble(3).toString()
+            )
+            bookings.add(booking)
+        }
+        cursor.close()
+        db.close()
+
+        Log.d("DatabaseHelper", "Returning bookings: $bookings") // Debugging log
+
+        return bookings
+    }
+
+
 
     //fetch station names dynamically
     fun getStationNames(): List<String> {

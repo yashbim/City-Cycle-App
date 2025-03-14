@@ -40,10 +40,11 @@ class LoginPage : AppCompatActivity() {
             val email = email_address.text.toString().trim()
 
 
-            val sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE)
+            val sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE)
             val editor = sharedPreferences.edit()
-            editor.putString("EMAIL", email)
+            editor.putString("user_email", email) // Store email after login
             editor.apply()
+
 
             val intent_login = Intent(this, LandingPage::class.java)
             startActivity(intent_login)
