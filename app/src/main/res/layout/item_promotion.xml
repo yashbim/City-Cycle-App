@@ -10,7 +10,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:background="@color/bg_blue">
 
         <TextView
             android:id="@+id/textPromoTitle"
@@ -18,7 +19,8 @@
             android:layout_height="wrap_content"
             android:text="Christmas Special"
             android:textStyle="bold"
-            android:textSize="18sp"/>
+            android:textSize="18sp"
+            android:textColor="@color/blue1"/>
 
         <TextView
             android:id="@+id/textPromoDescription"
@@ -26,6 +28,7 @@
             android:layout_height="wrap_content"
             android:text="Rent a bike this Christmas and get 30% off!"
             android:textSize="14sp"
+            android:textColor="@color/DarkGrey"
             android:paddingTop="4dp"/>
 
         <TextView
