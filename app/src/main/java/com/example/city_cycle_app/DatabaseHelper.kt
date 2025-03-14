@@ -248,6 +248,24 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         return result != -1L
     }
 
+    fun updatePassword(email: String, newPassword: String): Boolean {
+        val db = this.writableDatabase
+        val values = ContentValues().apply {
+            put(COLUMN_PASSWORD, newPassword)
+        }
+
+        // Update the password where email matches
+        val result = db.update(
+            TABLE_NAME,
+            values,
+            "$COLUMN_EMAIL = ?",  // WHERE clause
+            arrayOf(email)        // WHERE args
+        )
+        db.close()
+
+        return result > 0  // Returns true if at least one row was updated
+    }
+
     fun checkUser(email: String, password: String): Boolean {
         val db = this.readableDatabase
         val query = "SELECT * FROM $TABLE_NAME WHERE $COLUMN_EMAIL = ? AND $COLUMN_PASSWORD = ?"
