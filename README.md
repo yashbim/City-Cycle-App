@@ -50,7 +50,6 @@ git clone https://github.com/your-repo/City-Cycle-App.git
 Configure API keys in the local.properties file:
  ```
 MAPS_API_KEY=your_google_maps_api_key
-STRIPE_API_KEY=your_payment_api_key
 ```
 
 # Usage
