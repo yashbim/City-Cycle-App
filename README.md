@@ -8,7 +8,7 @@ City Cycle App is a mobile application for renting bicycles. Users can locate av
 * Bike Availability Tracking: View nearby bikes per location on a map and list.
 * Book bike: Book a bicycle from a renting station, select time duration, etc
 * Ride History: Track past rides and payments
-* 
+  
 
 # Tech Stack
 
