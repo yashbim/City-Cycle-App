@@ -39,8 +39,8 @@ public class BookBike extends AppCompatActivity {
         dbHelper = new DatabaseHelper(this);
 
         // Retrieve user email from SharedPreferences
-        SharedPreferences sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE);
-        userEmail = sharedPreferences.getString("EMAIL", "");
+        SharedPreferences sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE);
+        userEmail = sharedPreferences.getString("user_email", "");
         if (userEmail == null) {
             userEmail = "";
         }
